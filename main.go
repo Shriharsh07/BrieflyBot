@@ -1,6 +1,7 @@
 package main
 
 import (
+	"brieflybot/service"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -15,11 +16,6 @@ import (
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 )
-
-type EmailData struct {
-	Subject string
-	Body    string
-}
 
 func main() {
 	_ = godotenv.Load()
@@ -53,7 +49,7 @@ func main() {
 		return
 	}
 
-	emails := []EmailData{}
+	emails := []service.EmailData{}
 
 	for _, msg := range resp.Messages {
 		m, err := srv.Users.Messages.Get("me", msg.Id).Do()
@@ -68,25 +64,25 @@ func main() {
 			}
 		}
 
-		body := getEmailBody(m.Payload)
+		body := service.GetEmailBody(m.Payload)
 		if strings.TrimSpace(body) == "" {
 			body = subject
 		}
 
-		emails = append(emails, EmailData{
+		emails = append(emails, service.EmailData{
 			Subject: subject,
 			Body:    body,
 		})
 	}
 
-	summaries, err := SummarizeEmailsBatch(emails)
+	summaries, err := service.SummarizeEmailsBatch(emails)
 	if err != nil {
 		log.Println("Gemini error:", err)
 		return
 	}
 
 	for i, s := range summaries {
-		SendToTelegram(emails[i].Subject, s)
+		service.SendToTelegram(emails[i].Subject, s)
 	}
 }
 

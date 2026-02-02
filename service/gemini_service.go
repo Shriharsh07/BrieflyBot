@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"bytes"
@@ -13,6 +13,11 @@ import (
 
 	"google.golang.org/api/gmail/v1"
 )
+
+type EmailData struct {
+	Subject string
+	Body    string
+}
 
 func SummarizeEmailsBatch(emails []EmailData) ([]string, error) {
 	apiKey := os.Getenv("GEMINI_API_KEY")
@@ -88,13 +93,13 @@ func SummarizeEmailsBatch(emails []EmailData) ([]string, error) {
 
 	out := []string{}
 	for _, p := range parts {
-		out = append(out, cleanSummary(p))
+		out = append(out, CleanSummary(p))
 	}
 
 	return out, nil
 }
 
-func cleanSummary(text string) string {
+func CleanSummary(text string) string {
 	lines := strings.Split(text, "\n")
 	out := []string{}
 
@@ -113,7 +118,7 @@ func cleanSummary(text string) string {
 	return strings.Join(out, "\n")
 }
 
-func getEmailBody(part *gmail.MessagePart) string {
+func GetEmailBody(part *gmail.MessagePart) string {
 	if part.Body != nil && part.Body.Data != "" {
 		return decodeBody(part.Body.Data)
 	}
@@ -131,7 +136,7 @@ func getEmailBody(part *gmail.MessagePart) string {
 	}
 
 	for _, p := range part.Parts {
-		if body := getEmailBody(p); body != "" {
+		if body := GetEmailBody(p); body != "" {
 			return body
 		}
 	}
