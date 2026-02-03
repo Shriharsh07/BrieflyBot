@@ -37,3 +37,6 @@ temp/
 # ===== Logs =====
 logs/
 *.log
+
+# ===== Node Modules =====
+node_modules/

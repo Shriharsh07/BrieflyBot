@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>BreiflyBot</title>
+
+  <style>
+    html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden !important; /* 🚫 kill body scrollbar */
+    }
+
+    body {
+    background: linear-gradient(145deg, #0f0f1a, #151528);
+    color: #fff;
+    font-family: system-ui, sans-serif;
+    user-select: none;
+    }
+
+    .header {
+      height: 42px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+
+      -webkit-app-region: drag;
+    }
+
+    .title {
+      font-weight: 600;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 8px;
+      -webkit-app-region: no-drag;
+    }
+
+    .window-controls button {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      border: none;
+      background: rgba(255,255,255,0.15);
+      color: white;
+      cursor: pointer;
+    }
+
+    .window-controls button:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* CONTENT */
+    .content {
+    height: calc(100vh - 42px);
+    padding: 12px;
+    overflow: hidden;
+    }
+
+    .scroll-area {
+    height: 100%;
+    overflow-y: auto;
+    padding-right: 8px;
+    }
+
+
+    /* 🔥 MODERN SCROLLBAR */
+    .scroll-area::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scroll-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb {
+      background: linear-gradient(
+        180deg,
+        rgba(106, 90, 205, 0.85),
+        rgba(0, 198, 255, 0.85)
+      );
+      border-radius: 10px;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(
+        180deg,
+        rgba(138, 123, 255, 0.95),
+        rgba(0, 220, 255, 0.95)
+      );
+    }
+
+    .card {
+      background: linear-gradient(
+        135deg,
+        rgba(106, 90, 205, 0.35),
+        rgba(0, 198, 255, 0.25)
+      );
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+    }
+
+    .card-title {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .card-body {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <span class="title">🧠 BreiflyBot</span>
+    <div class="window-controls">
+      <button id="minimize">—</button>
+      <button id="close">✕</button>
+    </div>
+  </div>
+
+<div class="content">
+  <div class="scroll-area" id="messages"></div>
+</div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
