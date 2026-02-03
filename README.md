@@ -32,13 +32,14 @@ It is designed for **personal productivity**, privacy, and minimal noise — so 
 ├── 📁 .github
 │   └── 📁 appmod
 │       └── 📁 appcat
+├── 📁 service
+│   ├── 🐹 gemini_service.go
+│   └── 🐹 telegram_service.go
 ├── ⚙️ .gitignore
 ├── 📝 README.md
 ├── 📄 go.mod
 ├── 📄 go.sum
-├── 🐹 main.go
-├── 🐹 summarizer.go
-└── 🐹 telegram.go
+└── 🐹 main.go
 ```
 
 ---

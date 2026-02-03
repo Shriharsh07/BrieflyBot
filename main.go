@@ -1,6 +1,7 @@
 package main
 
 import (
+	"brieflybot/service"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -16,12 +17,9 @@ import (
 	"google.golang.org/api/option"
 )
 
-type EmailData struct {
-	Subject string
-	Body    string
-}
-
 func main() {
+
+	service.InitLogger()
 	_ = godotenv.Load()
 
 	ctx := context.Background()
@@ -31,14 +29,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
-	if err != nil {
-		log.Fatal(err)
-	}
+	config, err := google.ConfigFromJSON(
+		b,
+		gmail.GmailReadonlyScope,
+		gmail.GmailModifyScope,
+	)
 
 	client := getClient(config)
 
 	srv, err := gmail.NewService(ctx, option.WithHTTPClient(client))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	labelID, err := service.GetOrCreateLabel(srv, "me", "BRIEFLY_PROCESSED")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,7 +57,7 @@ func main() {
 		return
 	}
 
-	emails := []EmailData{}
+	emails := []service.EmailData{}
 
 	for _, msg := range resp.Messages {
 		m, err := srv.Users.Messages.Get("me", msg.Id).Do()
@@ -68,25 +72,26 @@ func main() {
 			}
 		}
 
-		body := getEmailBody(m.Payload)
+		body := service.GetEmailBody(m.Payload)
 		if strings.TrimSpace(body) == "" {
 			body = subject
 		}
 
-		emails = append(emails, EmailData{
+		emails = append(emails, service.EmailData{
 			Subject: subject,
 			Body:    body,
 		})
 	}
 
-	summaries, err := SummarizeEmailsBatch(emails)
+	summaries, err := service.SummarizeEmailsBatch(emails)
 	if err != nil {
 		log.Println("Gemini error:", err)
 		return
 	}
 
 	for i, s := range summaries {
-		SendToTelegram(emails[i].Subject, s)
+		service.SendToTelegram(emails[i].Subject, s)
+		service.MarkEmailProcessed(srv, "me", resp.Messages[i].Id, labelID)
 	}
 }
 
