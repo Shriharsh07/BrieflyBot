@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -88,6 +89,16 @@ func SummarizeEmailsBatch(emails []EmailData) ([]string, error) {
 
 	json.Unmarshal(bodyBytes, &result)
 
+	if len(result.Candidates) == 0 {
+		log.Println("Gemini returned zero candidates:", string(bodyBytes))
+		return fallbackSummaries(emails), nil
+	}
+
+	if len(result.Candidates[0].Content.Parts) == 0 {
+		log.Println("Gemini returned empty content parts:", string(bodyBytes))
+		return fallbackSummaries(emails), nil
+	}
+
 	raw := result.Candidates[0].Content.Parts[0].Text
 	parts := strings.Split(raw, "---")
 
@@ -155,4 +166,16 @@ func decodeBody(data string) string {
 func stripHTML(html string) string {
 	re := regexp.MustCompile(`<[^>]*>`)
 	return strings.TrimSpace(re.ReplaceAllString(html, ""))
+}
+
+func fallbackSummaries(emails []EmailData) []string {
+	out := []string{}
+	for _, e := range emails {
+		out = append(out,
+			"• New email received\n"+
+				"• Subject: "+e.Subject+"\n"+
+				"• Please review the email",
+		)
+	}
+	return out
 }

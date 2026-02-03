@@ -18,6 +18,8 @@ import (
 )
 
 func main() {
+
+	service.InitLogger()
 	_ = godotenv.Load()
 
 	ctx := context.Background()
@@ -27,14 +29,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
-	if err != nil {
-		log.Fatal(err)
-	}
+	config, err := google.ConfigFromJSON(
+		b,
+		gmail.GmailReadonlyScope,
+		gmail.GmailModifyScope,
+	)
 
 	client := getClient(config)
 
 	srv, err := gmail.NewService(ctx, option.WithHTTPClient(client))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	labelID, err := service.GetOrCreateLabel(srv, "me", "BRIEFLY_PROCESSED")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -83,6 +91,7 @@ func main() {
 
 	for i, s := range summaries {
 		service.SendToTelegram(emails[i].Subject, s)
+		service.MarkEmailProcessed(srv, "me", resp.Messages[i].Id, labelID)
 	}
 }
 
