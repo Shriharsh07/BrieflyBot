@@ -122,21 +122,31 @@ BrieflyBot includes a lightweight desktop application built with **Electron**.
 
 ---
 
-## 2️⃣ Gemini API Key (FREE AI)
+## 2️⃣ Gemini API Setup (Email Summarization AI)
 
-BrieflyBot uses **Google Gemini** for summarization.
+BrieflyBot uses **Google Gemini** for summarizing emails.
 
-### Step 1: Open Google AI Studio
-👉 https://aistudio.google.com
+⚠️ **Important:**  API keys must be created from **Google Cloud Console**, **NOT from Google AI Studio**, for backend REST API usage.
+
+---
+### Step 1: Enable Generative Language API
+1. In **Google Cloud Console**
+2. Go to **APIs & Services → Library**
+3. Search for **Generative Language API**
+4. Click **Enable**
 
 ---
 
-### Step 2: Create API Key
-1. Click **Get API Key**
-2. Create a new key
-3. Copy the key
+### Step 2: Create Gemini API Key
+1. Go to **APIs & Services → Credentials**
+2. Click **Create Credentials → API Key**
+3. Copy the generated key
 
----
+(Optional for development)
+- Application restrictions: **None**
+- API restrictions: **None**
+
+You can restrict it later for production.
 
 ### Step 3: (Optional) Verify Available Models
 Open in browser:

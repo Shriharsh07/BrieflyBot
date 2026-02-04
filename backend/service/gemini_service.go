@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/joho/godotenv"
 	"google.golang.org/api/gmail/v1"
 )
 
@@ -21,6 +22,9 @@ type EmailData struct {
 }
 
 func SummarizeEmailsBatch(emails []EmailData) ([]string, error) {
+
+	_ = godotenv.Load()
+
 	apiKey := os.Getenv("GEMINI_API_KEY")
 
 	url := fmt.Sprintf(
