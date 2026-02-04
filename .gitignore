@@ -40,3 +40,5 @@ logs/
 
 # ===== Node Modules =====
 node_modules/
+
+architecture-diagram.mmd
