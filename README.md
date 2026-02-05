@@ -4,6 +4,21 @@
 
 It is designed for **personal productivity**, privacy, and minimal noise — so you understand emails without reading long content.
 
+
+---
+
+## 🖥️ Desktop App
+
+BrieflyBot includes a lightweight desktop application built with **Electron**.
+### Desktop Capabilities
+- Frameless floating window
+- Always-on-top mode
+- Modern card-based UI
+- Gradient & glassmorphism design
+- Clean custom scrollbar
+- Minimize & close controls
+- Terminates fully on close (no background process)
+- Real-time updates via WebSocket
 ---
 
 ## ✨ Why BrieflyBot?
@@ -32,14 +47,27 @@ It is designed for **personal productivity**, privacy, and minimal noise — so 
 ├── 📁 .github
 │   └── 📁 appmod
 │       └── 📁 appcat
-├── 📁 service
-│   ├── 🐹 gemini_service.go
-│   └── 🐹 telegram_service.go
+├── 📁 backend
+│   ├── 📁 service
+│   │   ├── 🐹 email_service.go
+│   │   ├── 🐹 gemini_service.go
+│   │   ├── 🐹 label_service.go
+│   │   ├── 🐹 logger_service.go
+│   │   └── 🐹 telegram_service.go
+│   ├── 📁 websocket
+│   │   └── 🐹 hub.go
+│   ├── 📄 go.mod
+│   ├── 📄 go.sum
+│   └── 🐹 main.go
+├── 📁 desktop
+│   ├── 🌐 index.html
+│   ├── 📄 main.js
+│   ├── ⚙️ package-lock.json
+│   ├── ⚙️ package.json
+│   ├── 📄 preload.js
+│   └── 📄 renderer.js
 ├── ⚙️ .gitignore
-├── 📝 README.md
-├── 📄 go.mod
-├── 📄 go.sum
-└── 🐹 main.go
+└── 📝 README.md
 ```
 
 ---
@@ -94,21 +122,31 @@ It is designed for **personal productivity**, privacy, and minimal noise — so 
 
 ---
 
-## 2️⃣ Gemini API Key (FREE AI)
+## 2️⃣ Gemini API Setup (Email Summarization AI)
 
-BrieflyBot uses **Google Gemini** for summarization.
+BrieflyBot uses **Google Gemini** for summarizing emails.
 
-### Step 1: Open Google AI Studio
-👉 https://aistudio.google.com
+⚠️ **Important:**  API keys must be created from **Google Cloud Console**, **NOT from Google AI Studio**, for backend REST API usage.
+
+---
+### Step 1: Enable Generative Language API
+1. In **Google Cloud Console**
+2. Go to **APIs & Services → Library**
+3. Search for **Generative Language API**
+4. Click **Enable**
 
 ---
 
-### Step 2: Create API Key
-1. Click **Get API Key**
-2. Create a new key
-3. Copy the key
+### Step 2: Create Gemini API Key
+1. Go to **APIs & Services → Credentials**
+2. Click **Create Credentials → API Key**
+3. Copy the generated key
 
----
+(Optional for development)
+- Application restrictions: **None**
+- API restrictions: **None**
+
+You can restrict it later for production.
 
 ### Step 3: (Optional) Verify Available Models
 Open in browser:
@@ -149,3 +187,45 @@ Create a `.env` file in the project root:
 TELEGRAM_BOT_TOKEN=123456:ABCDEF...
 TELEGRAM_CHAT_ID=123456789
 GEMINI_API_KEY=AIzaSy...
+```
+---
+
+## ▶️ Running the Project
+1️⃣ Start Backend (Gin + WebSocket)
+```
+cd backend
+go run main.go
+```
+
+1. Runs WebSocket server on ws://localhost:8080/ws
+
+2. Processes Gmail emails
+
+3. Sends summaries to Telegram + Desktop
+
+2️⃣ Start Desktop App
+```
+cd desktop
+npm install
+npm start
+```
+1. Desktop app connects to backend
+
+2. Shows real-time summary cards
+
+The desktop app connects to the backend via WebSocket and displays summaries in real time.
+
+---
+
+➕ WebSocket Details
+
+```
+## ⚡ Real-Time Updates (WebSocket)
+
+The desktop app connects to the backend using WebSocket: ws://localhost:8080/ws
+
+```
+
+Summaries are pushed instantly as cards when emails are processed — no polling required.
+
+

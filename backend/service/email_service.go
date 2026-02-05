@@ -1,7 +1,7 @@
-package main
+package service
 
 import (
-	"brieflybot/service"
+	ws "brieflybot/websocket"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -17,16 +17,16 @@ import (
 	"google.golang.org/api/option"
 )
 
-func main() {
-
-	service.InitLogger()
+func RunEmailProcessor() {
+	InitLogger()
 	_ = godotenv.Load()
 
 	ctx := context.Background()
 
 	b, err := os.ReadFile("credentials.json")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 
 	config, err := google.ConfigFromJSON(
@@ -34,17 +34,23 @@ func main() {
 		gmail.GmailReadonlyScope,
 		gmail.GmailModifyScope,
 	)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
 	client := getClient(config)
 
 	srv, err := gmail.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 
-	labelID, err := service.GetOrCreateLabel(srv, "me", "BRIEFLY_PROCESSED")
+	labelID, err := GetOrCreateLabel(srv, "me", "BRIEFLY_PROCESSED")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 
 	resp, err := srv.Users.Messages.List("me").
@@ -53,11 +59,11 @@ func main() {
 		Do()
 
 	if err != nil || len(resp.Messages) == 0 {
-		fmt.Println("No unread emails")
+		log.Println("No unread emails")
 		return
 	}
 
-	emails := []service.EmailData{}
+	emails := []EmailData{}
 
 	for _, msg := range resp.Messages {
 		m, err := srv.Users.Messages.Get("me", msg.Id).Do()
@@ -72,26 +78,33 @@ func main() {
 			}
 		}
 
-		body := service.GetEmailBody(m.Payload)
+		body := GetEmailBody(m.Payload)
 		if strings.TrimSpace(body) == "" {
 			body = subject
 		}
 
-		emails = append(emails, service.EmailData{
+		emails = append(emails, EmailData{
 			Subject: subject,
 			Body:    body,
 		})
 	}
 
-	summaries, err := service.SummarizeEmailsBatch(emails)
+	summaries, err := SummarizeEmailsBatch(emails)
 	if err != nil {
 		log.Println("Gemini error:", err)
 		return
 	}
 
 	for i, s := range summaries {
-		service.SendToTelegram(emails[i].Subject, s)
-		service.MarkEmailProcessed(srv, "me", resp.Messages[i].Id, labelID)
+		// existing behavior
+		SendToTelegram(emails[i].Subject, s)
+		MarkEmailProcessed(srv, "me", resp.Messages[i].Id, labelID)
+
+		// 🔥 NEW: broadcast to desktop
+		ws.Broadcast(map[string]string{
+			"title": "📧 Email Summary",
+			"body":  StripBulletsForUI(s),
+		})
 	}
 }
 
@@ -113,7 +126,8 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 
 	tok, err := config.Exchange(context.Background(), code)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		panic(err)
 	}
 	return tok
 }

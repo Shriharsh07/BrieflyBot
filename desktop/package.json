@@ -1,0 +1,12 @@
+{
+  "name": "brieflybot-desktop",
+  "version": "0.1.0",
+  "description": "BreiflyBot Desktop Floating Window",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^29.0.0"
+  }
+}
