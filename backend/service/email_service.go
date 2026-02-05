@@ -103,7 +103,7 @@ func RunEmailProcessor() {
 		// 🔥 NEW: broadcast to desktop
 		ws.Broadcast(map[string]string{
 			"title": "📧 Email Summary",
-			"body":  fmt.Sprintf("%s\n\n%s", emails[i].Subject, s),
+			"body":  StripBulletsForUI(s),
 		})
 	}
 }

@@ -13,12 +13,33 @@ document.getElementById("close").addEventListener("click", () => {
 function addCard(title, body) {
   const card = document.createElement("div");
   card.className = "card";
+
+  let contentHTML = "";
+
+  // If body contains line breaks → treat as bullet points
+  if (body.includes("\n")) {
+    const points = body
+      .split("\n")
+      .map(p => p.trim())
+      .filter(Boolean);
+
+    contentHTML = `
+      <ul class="card-list">
+        ${points.map(p => `<li>${p}</li>`).join("")}
+      </ul>
+    `;
+  } else {
+    contentHTML = `<div class="card-body">${body}</div>`;
+  }
+
   card.innerHTML = `
     <div class="card-title">${title}</div>
-    <div class="card-body">${body}</div>
+    ${contentHTML}
   `;
+
   messages.prepend(card);
 }
+
 
 /* WebSocket */
 window.wsClient.connect(
@@ -35,6 +56,8 @@ window.wsClient.connect(
 );
 
 /* Mock cards */
-addCard("🧠 Email Summary", "3 urgent emails · 1 invoice due today");
-addCard("📅 Reminder", "Rent follow-up scheduled for tomorrow");
-addCard("📌 Task", "Follow up with tenant regarding payment");
+addCard(
+  "🧠 Email Summary",
+  "3 urgent emails\n1 invoice due today\n2 newsletters skipped"
+);
+

@@ -183,3 +183,28 @@ func fallbackSummaries(emails []EmailData) []string {
 	}
 	return out
 }
+
+func StripBulletsForUI(s string) string {
+	lines := strings.Split(s, "\n")
+	out := []string{}
+
+	for _, line := range lines {
+		l := strings.TrimSpace(line)
+
+		// Remove common bullet styles
+		l = strings.TrimPrefix(l, "•")
+		l = strings.TrimPrefix(l, "-")
+		l = strings.TrimPrefix(l, "*")
+
+		// Remove numbered bullets: 1. 2)
+		l = regexp.MustCompile(`^\d+[\.\)]\s*`).ReplaceAllString(l, "")
+
+		l = strings.TrimSpace(l)
+
+		if l != "" {
+			out = append(out, l)
+		}
+	}
+
+	return strings.Join(out, "\n")
+}
