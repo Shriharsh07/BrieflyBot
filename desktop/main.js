@@ -10,14 +10,19 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 380,
     height: 520,
+    minWidth: 320,
+    minHeight: 420,
+    resizable: true,        // ✅ REQUIRED
     frame: false,
-    alwaysOnTop: true,
-    transparent: true,
-    resizable: true,
+    backgroundColor: "#05060a", // ✅ REQUIRED
+    transparent: false,    // ✅ REQUIRED
+    hasShadow: true,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js")
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true
     }
   });
+
 
   mainWindow.loadFile("index.html");
 
